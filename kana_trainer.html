@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>かな練習</title>
+<style>
+:root{--bg-main:#f4f1ea;--bg-block:#fff;--text-main:#2d3748;--accent-color:#3b7a57;--border-color:#d1cbd4;--err:#b8473a}
+:root.kirikaeri_mode{--bg-main:#181e24;--bg-block:#202932;--text-main:#e4e9ed;--accent-color:#8fc79a;--border-color:#313d49;--err:#e8897d}
+[hidden]{display:none!important}
+body{background:var(--bg-main);color:var(--text-main);transition:background-color .3s,color .3s;font-family:sans-serif;margin:0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh}
+.container{width:100%;max-width:600px;margin:60px 20px;background:var(--bg-block);padding:30px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.05);box-sizing:border-box}
+header{border-bottom:1px solid var(--border-color);padding-bottom:15px;margin-bottom:30px;text-align:center}
+h1{font-size:1.8rem;margin:0;font-weight:700}
+h2{font-size:1.05rem;margin:0 0 10px}
+.top-controls{position:fixed;top:25px;right:25px;display:flex;gap:10px;z-index:1000}
+.control-btn,.nav-btn{font-family:inherit;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.control-btn{background:var(--bg-block);border:1px solid var(--border-color);border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.1);color:var(--text-main);font-size:.8rem;padding:7px 15px;transition:all .1s ease-out;outline:none}
+.control-btn:hover{border-color:var(--accent-color)}
+.nav-btn{background:var(--accent-color);color:var(--bg-block);border:none;padding:10px 20px;border-radius:6px;font-size:.9rem;transition:opacity .2s}
+.nav-btn:hover{opacity:.9}
+.nav-btn.ghost{background:var(--bg-main);color:var(--text-main);border:1px solid var(--border-color)}
+:focus-visible{outline:2px solid var(--accent-color);outline-offset:2px}
+.jp-text{border-left:4px solid var(--accent-color);padding:15px 20px;font-size:1.2rem;line-height:1.8;background:var(--bg-main);border-radius:0 4px 4px 0;margin-bottom:25px;line-break:strict;word-break:auto-phrase}
+.block{margin-bottom:22px}
+.opts{display:flex;flex-wrap:wrap;gap:8px 18px}
+.opts label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.95rem}
+.opts input,select{accent-color:var(--accent-color)}
+select{background:var(--bg-main);color:var(--text-main);border:1px solid var(--border-color);border-radius:6px;padding:5px 8px;font-size:.95rem}
+.hint{font-size:.85rem;opacity:.75;margin:6px 0 0;line-height:1.5}
+.row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:20px}
+.stats{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:12px;font-weight:bold}
+.bar{height:6px;background:var(--bg-main);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.bar i{display:block;height:100%;width:100%;background:var(--accent-color)}
+.kana{font-size:6rem;line-height:1.3;text-align:center;border-left:4px solid var(--accent-color);background:var(--bg-main);border-radius:0 4px 4px 0;padding:10px;margin-bottom:18px;user-select:none}
+.kana.sm{font-size:5rem}
+#ans,#wAns{width:100%;box-sizing:border-box;font-size:1.4rem;padding:10px 14px;text-align:center;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-block);color:var(--text-main);outline:none}
+#ans:focus,#wAns:focus{border-color:var(--accent-color)}
+#ans.bad,#wAns.bad{border-color:var(--err)}
+#msg,#wMsg{min-height:1.6em;text-align:center;margin:12px 0 0;font-weight:bold}
+#msg.ok,#wMsg.ok{color:var(--accent-color)}#msg.no,#wMsg.no{color:var(--err)}
+.big{font-size:3rem;text-align:center;font-weight:700;margin:6px 0}
+.sub{text-align:center;margin:0 0 20px;opacity:.85}
+.miss{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.miss span{background:var(--bg-main);border:1px solid var(--border-color);border-radius:6px;padding:6px 12px;font-size:1.1rem}
+.miss small{opacity:.7;font-size:.8rem;margin-left:6px}
+.prow{display:grid;grid-template-columns:30px repeat(var(--n),minmax(0,62px));gap:6px;margin-bottom:6px}
+.prow .tile{font-size:1.3rem;padding:6px 0}
+.prow .rowbtn{font-size:.9rem;padding:0;opacity:.8}
+.pg{margin:14px 0 8px}
+.kb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:330px;margin:16px auto 0}
+.kb .tile{font-size:1.3rem;padding:8px 0}
+.sv.dr{touch-action:none;cursor:crosshair;user-select:none}
+.sv.dim{opacity:.45}
+.sv .u{fill:none;stroke:var(--text-main);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.sv .u.bad{stroke:var(--err)}
+.sv .h{fill:none;stroke:var(--err);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;animation:bl .5s 5}
+@keyframes bl{50%{opacity:.15}}
+#wExtra{justify-content:center;min-height:3rem}
+#wExtra span{font-size:1.5rem}
+#wExtra small{font-size:.75rem}
+.container:has(#learn:not([hidden])){max-width:860px}
+.lwrap{display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start}
+.lright{position:sticky;top:20px}
+.lright .row{margin-top:12px}
+@media(max-width:700px){
+.lwrap{grid-template-columns:1fr;gap:12px}
+.lright{order:-1;top:50px;z-index:5;background:var(--bg-block);padding:6px 0}
+.lright .stage{min-height:110px}.lright .sv{width:110px}
+.lright .big{font-size:2rem;margin:2px 0}
+}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;margin:18px 0}
+.tile{font:inherit;font-size:1.5rem;line-height:1.2;color:var(--text-main);background:var(--bg-main);border:1px solid var(--border-color);border-radius:6px;padding:8px 0;cursor:pointer}
+.tile small{display:block;font-size:.7rem;opacity:.7}
+.tile:hover,.tile.on{border-color:var(--accent-color)}
+.tile.on{background:var(--bg-block);box-shadow:inset 0 0 0 1px var(--accent-color)}
+.stage{display:flex;justify-content:center;gap:10px;border-left:4px solid var(--accent-color);background:var(--bg-main);border-radius:0 4px 4px 0;padding:10px;min-height:170px;align-items:center}
+.sv{width:160px;max-width:45%;height:auto;background:var(--bg-block);border:1px solid var(--border-color);border-radius:6px}
+.sv .g,.sv .p{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.sv .g{stroke:var(--border-color)}.sv .p{stroke:var(--accent-color)}
+.sv .n{font-size:8px;font-weight:700;fill:var(--err)}
+@media(max-width:600px){.container{margin:60px 10px 20px;padding:20px 15px}.top-controls{top:15px;right:15px;gap:6px}.control-btn{padding:5px 10px;font-size:.75rem}h1{font-size:1.4rem}.kana{font-size:5rem}.kana.sm{font-size:4rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script>
+try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('kirikaeri_mode')}catch(e){}
+function toggleTheme(){const d=document.documentElement.classList.toggle('kirikaeri_mode');try{localStorage.setItem('theme',d?'dark':'light')}catch(e){}}
+</script>
+</head>
+<body>
+<div class="top-controls">
+  <a href="../index.html" class="control-btn">ホームページ</a>
+  <button class="control-btn" onclick="toggleTheme()">切替</button>
+</div>
+
+<div class="container">
+<header><h1>ひらがな・カタカナ練習</h1></header>
+
+<!-- Настройки -->
+<section id="setup">
+  <div class="row" style="margin:0 0 26px"><button class="nav-btn" id="toLearn">Для новичков: порядок черт и звук</button></div>
+  <div class="block"><h2>Режим</h2>
+    <div class="opts">
+      <label><input type="radio" name="mode" value="study" checked> Обучение (без времени)</label>
+      <label><input type="radio" name="mode" value="timed"> На время</label>
+    </div>
+    <div id="durBox" hidden class="opts" style="margin-top:10px">
+      <label>Время на знак:
+        <select id="dur"><option value="3">3 сек</option><option value="5">5 сек</option><option value="10" selected>10 сек</option><option value="15">15 сек</option><option value="30">30 сек</option></select></label>
+      <label>Знаков в раунде:
+        <select id="cnt"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option><option value="0">без лимита</option></select></label>
+    </div>
+    <p class="hint" id="modeHint">Без таймера. Ошибочные знаки возвращаются позже, пока вы их не запомните.</p>
+  </div>
+  <div class="block"><h2>Азбука</h2>
+    <div class="opts">
+      <label><input type="checkbox" id="sH" checked> ひらがな</label>
+      <label><input type="checkbox" id="sK" checked> カタカナ</label>
+    </div>
+  </div>
+  <div class="block"><h2>Знаки</h2>
+    <div class="opts" style="margin-bottom:10px">
+      <label><input type="radio" name="sel" value="pick" checked> Выбрать вручную</label>
+      <label><input type="radio" name="sel" value="all"> Группы целиком</label>
+    </div>
+    <div id="pickBox">
+      <div class="opts"><button type="button" class="control-btn" id="pAll">Все</button><button type="button" class="control-btn" id="pNone">Сбросить</button></div>
+      <p class="hint" id="pickCnt"></p>
+      <div id="pickGrid"></div>
+    </div>
+    <div class="opts" id="grpBox" hidden>
+      <label><input type="checkbox" id="gB" checked> Основные (あ か さ…)</label>
+      <label><input type="checkbox" id="gD"> Звонкие (が ぱ…)</label>
+      <label><input type="checkbox" id="gY"> Сочетания (きゃ しゅ…)</label>
+    </div>
+  </div>
+  <div class="row"><button class="nav-btn" id="start">Начать</button><button class="nav-btn ghost" id="toWords">Слова из двух слогов</button></div>
+</section>
+
+<!-- Игра -->
+<section id="play" hidden>
+  <div class="stats"><span id="st1"></span><span id="st2"></span></div>
+  <div class="bar" id="barBox"><i id="bar"></i></div>
+  <div class="kana" id="kana" aria-live="polite"></div>
+  <input id="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Введите ромадзи" aria-label="Ромадзи">
+  <p id="msg"></p>
+  <div class="row">
+    <button class="nav-btn" id="ok">Проверить</button>
+    <button class="nav-btn ghost" id="show">Показать ответ</button>
+    <button class="nav-btn ghost" id="stop">Завершить</button>
+  </div>
+</section>
+
+<!-- Для новичков -->
+<section id="learn" hidden>
+  <div class="lwrap">
+  <div class="lleft">
+  <div class="block"><h2>Азбука и группа</h2>
+    <div class="opts">
+      <label><input type="radio" name="lS" value="h" checked> ひらがな</label>
+      <label><input type="radio" name="lS" value="k"> カタカナ</label>
+      <select id="lG" aria-label="Группа знаков"><option value="basic">Основные</option><option value="dakuten">Звонкие</option><option value="yoon">Сочетания</option></select>
+    </div>
+    <p class="hint">Выберите знак: он напишется по чертам (красные цифры — порядок) и прозвучит.</p>
+  </div>
+  <div class="tiles" id="lGrid"></div>
+  </div>
+  <div class="lright">
+  <div class="stage" id="stage" aria-live="polite"></div>
+  <div class="big" id="lR"></div>
+  <p id="msg2" class="hint" style="text-align:center;min-height:1.4em"></p>
+  <div class="row">
+    <button class="nav-btn ghost" id="lPrev">←</button>
+    <button class="nav-btn" id="lSay">Послушать</button>
+    <button class="nav-btn" id="lAgain">Показать снова</button>
+    <button class="nav-btn ghost" id="lNext">→</button>
+  </div>
+  <div class="row" style="margin-top:10px"><button class="nav-btn" id="lDraw">Нарисовать самому</button></div>
+  </div>
+  </div>
+  <div class="row"><button class="nav-btn ghost" id="lBack">Назад к настройкам</button></div>
+</section>
+
+<!-- Слова -->
+<section id="words" hidden>
+  <div class="block">
+    <div class="opts">
+      <label><input type="radio" name="wS" value="h" checked> ひらがな</label>
+      <label><input type="radio" name="wS" value="k"> カタカナ</label>
+      <label><input type="radio" name="wS" value="m"> вперемешку</label>
+    </div>
+    <div class="opts" style="margin-top:8px">
+      <label><input type="checkbox" id="wMine"> Только из знаков, выбранных в настройках</label>
+    </div>
+    <div class="opts" style="margin-top:8px">
+      <span style="font-size:.95rem">После ответа показать:</span>
+      <label><input type="checkbox" id="wXh" checked> ひらがな</label>
+      <label><input type="checkbox" id="wXk" checked> 漢字</label>
+      <label><input type="checkbox" id="wXt" checked> перевод</label>
+    </div>
+    <p class="hint" id="wInfo"></p>
+  </div>
+  <div class="stats"><span id="wSt1"></span><span id="wSt2"></span></div>
+  <div class="kana sm" id="wKana" aria-live="polite"></div>
+  <input id="wAns" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Введите ромадзи слова" aria-label="Ромадзи слова">
+  <p id="wMsg"></p>
+  <div class="miss" id="wExtra" aria-live="polite"></div>
+  <div class="row">
+    <button class="nav-btn" id="wOk">Проверить</button>
+    <button class="nav-btn ghost" id="wSay">Послушать</button>
+    <button class="nav-btn ghost" id="wShow">Показать ответ</button>
+    <button class="nav-btn ghost" id="wBack">Назад</button>
+  </div>
+</section>
+
+<!-- Результат -->
+<section id="result" hidden>
+  <p class="sub" id="rTitle"></p>
+  <div class="big" id="rScore"></div>
+  <p class="sub" id="rInfo"></p>
+  <div id="rMissBox" class="block" hidden><h2>Над чем поработать</h2><div class="miss" id="rMiss"></div></div>
+  <div class="row">
+    <button class="nav-btn" id="again">Ещё раз</button>
+    <button class="nav-btn ghost" id="toSetup">Настройки</button>
+  </div>
+</section>
+</div>
+
+<script>
+const D={
+ basic:{r:"a i u e o ka ki ku ke ko sa shi su se so ta chi tsu te to na ni nu ne no ha hi fu he ho ma mi mu me mo ya yu yo ra ri ru re ro wa wo n",
+  h:"あ い う え お か き く け こ さ し す せ そ た ち つ て と な に ぬ ね の は ひ ふ へ ほ ま み む め も や ゆ よ ら り る れ ろ わ を ん",
+  k:"ア イ ウ エ オ カ キ ク ケ コ サ シ ス セ ソ タ チ ツ テ ト ナ ニ ヌ ネ ノ ハ ヒ フ ヘ ホ マ ミ ム メ モ ヤ ユ ヨ ラ リ ル レ ロ ワ ヲ ン"},
+ dakuten:{r:"ga gi gu ge go za ji zu ze zo da ji zu de do ba bi bu be bo pa pi pu pe po",
+  h:"が ぎ ぐ げ ご ざ じ ず ぜ ぞ だ ぢ づ で ど ば び ぶ べ ぼ ぱ ぴ ぷ ぺ ぽ",
+  k:"ガ ギ グ ゲ ゴ ザ ジ ズ ゼ ゾ ダ ヂ ヅ デ ド バ ビ ブ ベ ボ パ ピ プ ペ ポ"},
+ yoon:{r:"kya kyu kyo sha shu sho cha chu cho nya nyu nyo hya hyu hyo mya myu myo rya ryu ryo gya gyu gyo ja ju jo bya byu byo pya pyu pyo",
+  h:"きゃ きゅ きょ しゃ しゅ しょ ちゃ ちゅ ちょ にゃ にゅ にょ ひゃ ひゅ ひょ みゃ みゅ みょ りゃ りゅ りょ ぎゃ ぎゅ ぎょ じゃ じゅ じょ びゃ びゅ びょ ぴゃ ぴゅ ぴょ",
+  k:"キャ キュ キョ シャ シュ ショ チャ チュ チョ ニャ ニュ ニョ ヒャ ヒュ ヒョ ミャ ミュ ミョ リャ リュ リョ ギャ ギュ ギョ ジャ ジュ ジョ ビャ ビュ ビョ ピャ ピュ ピョ"}};
+// альтернативные написания (kunrei / Nihon-shiki)
+const ALT={si:"shi",ti:"chi",tu:"tsu",hu:"fu",zi:"ji",di:"ji",du:"zu",nn:"n",
+ sya:"sha",syu:"shu",syo:"sho",tya:"cha",tyu:"chu",tyo:"cho",cya:"cha",cyu:"chu",cyo:"cho",
+ zya:"ja",zyu:"ju",zyo:"jo",jya:"ja",jyu:"ju",jyo:"jo",dya:"ja",dyu:"ju",dyo:"jo"};
+const $=id=>document.getElementById(id);
+let items=[],mode,cur=null,queue=[],tries=0,right=0,missed={},streak=0,left=0,total=0,timer=null,revealed=false,end=0,cnt=0,qEnd=0;
+
+function build(){
+  const sc=[];if($('sH').checked)sc.push('h');if($('sK').checked)sc.push('k');
+  const gs=[];if($('gB').checked)gs.push('basic');if($('gD').checked)gs.push('dakuten');if($('gY').checked)gs.push('yoon');
+  const out=[],pk=document.querySelector('[name=sel]:checked').value==='pick';
+  (pk?Object.keys(D):gs).forEach(g=>{const r=D[g].r.split(' ');sc.forEach(s=>D[g][s].split(' ').forEach((k,i)=>{if(!pk||picked.has(g+':'+i))out.push({k,r:r[i],s})}))});
+  return out;
+}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function show(id){['setup','play','result','learn','words'].forEach(x=>$(x).hidden=x!==id)}
+function best(key,v){try{const b=+localStorage.getItem(key)||0;if(v>b){localStorage.setItem(key,v);return v}return b}catch(e){return v}}
+
+document.querySelectorAll('[name=mode]').forEach(r=>r.addEventListener('change',()=>{
+  const t=document.querySelector('[name=mode]:checked').value==='timed';
+  $('durBox').hidden=!t;
+  $('modeHint').textContent=t?'На каждый знак даётся ограниченное время. Не успели или ошиблись — это засчитывается как ошибка, и сразу идёт следующий знак.':'Без таймера. Ошибочные знаки возвращаются позже, пока вы их не запомните.';
+}));
+
+function begin(){
+  items=build();
+  if(!items.length){alert(document.querySelector('[name=sel]:checked').value==='pick'?'Отметьте хотя бы один знак (и одну азбуку).':'Выберите хотя бы одну азбуку и одну группу знаков.');return}
+  mode=document.querySelector('[name=mode]:checked').value;
+  tries=right=streak=0;missed={};queue=[];cur=null;
+  $('barBox').hidden=mode!=='timed';
+  show('play');
+  if(mode==='timed'){total=+$('dur').value;cnt=+$('cnt').value;timer=setInterval(tick,100)}
+  next();
+}
+function tick(){
+  left=Math.max(0,(qEnd-Date.now())/1000);
+  $('bar').style.width=(left/total*100)+'%';
+  stats();
+  if(left<=0&&cur&&!revealed)bad(false,true);
+}
+function advance(note){
+  const prev=cur;
+  if(cnt&&tries>=cnt){finish();return}
+  next();
+  if(note){$('msg').textContent=note+prev.k+' = '+prev.r;$('msg').className='no'}
+}
+function stats(){
+  if(mode==='timed'){$('st1').textContent='Осталось: '+left.toFixed(1)+' с';$('st2').textContent='Верно: '+right+(cnt?' · '+tries+'/'+cnt:'')}
+  else{$('st1').textContent='Верно: '+right+' из '+tries;$('st2').textContent='Серия: '+streak}
+}
+function next(){
+  revealed=false;
+  if(mode==='timed'){qEnd=Date.now()+total*1000;left=total}
+  if(mode==='study'){if(!queue.length)queue=shuffle(items);cur=queue.shift()}
+  else{let n;do{n=items[Math.floor(Math.random()*items.length)]}while(items.length>1&&n===cur);cur=n}
+  const el=$('kana');el.textContent=cur.k;el.classList.toggle('sm',cur.k.length>1);
+  const a=$('ans');a.value='';a.classList.remove('bad');a.readOnly=false;a.focus();
+  $('msg').textContent='';$('msg').className='';
+  $('ok').textContent='Проверить';$('show').hidden=false;
+  stats();
+}
+function correct(v){v=v.trim().toLowerCase();v=ALT[v]||v;return v===cur.r||(cur.r==='wo'&&v==='o')}
+function good(){
+  tries++;right++;streak++;
+  if(mode==='timed'){stats();advance();return}
+  $('msg').textContent='Верно!';$('msg').className='ok';stats();
+  setTimeout(()=>{if(cur&&!revealed&&$('msg').className==='ok')next()},450);
+}
+function bad(forced,timeout){
+  tries++;streak=0;revealed=true;
+  const key=cur.k;missed[key]=missed[key]||{k:cur.k,r:cur.r,n:0};missed[key].n++;
+  if(mode==='study'){queue.splice(Math.min(queue.length,3+Math.floor(Math.random()*4)),0,cur)}
+  if(mode==='timed'){advance(timeout?'Время вышло: ':'Ошибка: ');return}
+  $('ans').readOnly=true;$('ans').classList.add('bad');
+  $('msg').textContent=(forced?'Ответ: ':'Не совсем. Ответ: ')+cur.r;$('msg').className='no';
+  $('ok').textContent='Дальше';$('show').hidden=true;stats();
+}
+function submit(){
+  if(revealed){next();return}
+  const v=$('ans').value;if(!v.trim())return;
+  correct(v)?good():bad(false);
+}
+function finish(){
+  clearInterval(timer);timer=null;
+  show('result');
+  const miss=Object.values(missed).sort((a,b)=>b.n-a.n);
+  const acc=tries?Math.round(right/tries*100):0;
+  if(mode==='timed'){
+    const b=best('kanaBest'+total+'_'+cnt,right);
+    $('rTitle').textContent='Раунд завершён';$('rScore').textContent=right+' / '+tries;
+    $('rInfo').textContent='лимит '+total+' с на знак · точность '+acc+'% · рекорд: '+b;
+  }else{
+    $('rTitle').textContent='Тренировка завершена';$('rScore').textContent=right+' / '+tries;
+    $('rInfo').textContent='точность '+acc+'%';
+  }
+  $('rMissBox').hidden=!miss.length;
+  $('rMiss').innerHTML=miss.map(m=>'<span>'+m.k+'<small>'+m.r+'</small></span>').join('');
+}
+/* ===== Для новичков: порядок черт (KanjiVG) и озвучка ===== */
+const KV='https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/',NS='http://www.w3.org/2000/svg',cache={};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let L={s:'h',g:'basic',list:[],i:0},tok=0;
+function lGrid(){
+  const r=D[L.g].r.split(' ');
+  L.list=D[L.g][L.s].split(' ').map((k,i)=>({k,r:r[i]}));
+  $('lGrid').innerHTML=L.list.map((m,i)=>'<button class="tile'+(i===L.i?' on':'')+'" data-i="'+i+'">'+m.k+'<small>'+m.r+'</small></button>').join('');
+}
+async function getStrokes(ch){
+  const c=ch.codePointAt(0).toString(16).padStart(5,'0');
+  if(!cache[c]){
+    const r=await fetch(KV+c+'.svg');if(!r.ok)throw 0;
+    cache[c]=[...new DOMParser().parseFromString(await r.text(),'image/svg+xml').querySelectorAll('path')].map(p=>p.getAttribute('d'));
+  }
+  return cache[c];
+}
+async function play(){
+  const my=++tok,m=L.list[L.i],st=$('stage');
+  $('lR').textContent=m.r;$('msg2').textContent='';st.innerHTML='';
+  let data;
+  try{data=await Promise.all([...m.k].map(getStrokes))}
+  catch(e){$('msg2').textContent='Не удалось загрузить порядок черт (нужен интернет).';return}
+  if(my!==tok)return;
+  const fast=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const svgs=data.map(ds=>{
+    const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 109 109');s.setAttribute('class','sv');
+    ds.forEach(d=>{const g=document.createElementNS(NS,'path');g.setAttribute('d',d);g.setAttribute('class','g');s.appendChild(g)});
+    st.appendChild(s);return s;
+  });
+  for(let c=0;c<data.length;c++)for(let n=0;n<data[c].length;n++){
+    const p=document.createElementNS(NS,'path');p.setAttribute('d',data[c][n]);p.setAttribute('class','p');svgs[c].appendChild(p);
+    const pt=p.getPointAtLength(0),t=document.createElementNS(NS,'text');
+    t.setAttribute('x',pt.x-5);t.setAttribute('y',pt.y-2);t.setAttribute('class','n');t.textContent=n+1;svgs[c].appendChild(t);
+    if(fast)continue;
+    const len=p.getTotalLength(),ms=len*14+250;
+    p.style.strokeDasharray=len;p.style.strokeDashoffset=len;p.getBoundingClientRect();
+    p.style.transition='stroke-dashoffset '+ms+'ms linear';p.style.strokeDashoffset=0;
+    await sleep(ms+200);if(my!==tok)return;
+  }
+}
+let au=null;
+function say(){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  if(au)au.pause();
+  au=new Audio('audio/'+L.list[L.i].r+'.mp3');
+  au.onerror=speak; /* нет файла — запасной вариант: голос браузера */
+  au.play().catch(()=>{});
+}
+function speak(){
+  if(!('speechSynthesis' in window)){$('msg2').textContent='Браузер не поддерживает озвучку.';return}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(L.list[L.i].k);u.lang='ja-JP';u.rate=.7;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.replace('_','-').toLowerCase().startsWith('ja'));
+  if(v)u.voice=v;else $('msg2').textContent='В системе не найден японский голос — звук может не воспроизвестись.';
+  speechSynthesis.speak(u);
+}
+function pick(i){
+  L.i=i;document.querySelectorAll('.tile').forEach((t,j)=>t.classList.toggle('on',j===i));
+  render();say();
+}
+/* ===== Рисование самому: сверка с эталонными чертами KanjiVG ===== */
+const TOL=17,RS=20; /* допуск: средний сдвиг точек в координатах 109×109 */
+let drawMode=false,DS=null;
+function rsm(p,k){ /* равномерная передискретизация линии до k точек */
+  const cum=[0];for(let i=1;i<p.length;i++)cum.push(cum[i-1]+Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]));
+  const tot=cum[cum.length-1];if(tot<6)return null;
+  const o=[];let j=1;
+  for(let t=0;t<k;t++){
+    const d=tot*t/(k-1);while(j<cum.length-1&&cum[j]<d)j++;
+    const a=p[j-1],b=p[j],f=Math.min(1,Math.max(0,(d-cum[j-1])/(cum[j]-cum[j-1]||1)));
+    o.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]);
+  }
+  return o;
+}
+const pdist=(a,b)=>a.reduce((s,p,i)=>s+Math.hypot(p[0]-b[i][0],p[1]-b[i][1]),0)/a.length;
+const refOf=p=>{const n=p.getTotalLength(),o=[];for(let i=0;i<RS;i++){const q=p.getPointAtLength(n*i/(RS-1));o.push([q.x,q.y])}return o};
+function status(t,c){const m=$('msg2');m.textContent=t;m.style.color=c==='ok'?'var(--accent-color)':c==='no'?'var(--err)':'';m.style.fontWeight=c?'700':''}
+function drawUI(v){drawMode=v;$('lDraw').textContent=v?'Смотреть порядок черт':'Нарисовать самому';$('lAgain').textContent=v?'Начать заново':'Показать снова'}
+function render(){DS=null;$('msg2').style.color='';$('msg2').style.fontWeight='';drawMode?startDraw():play()}
+async function startDraw(){
+  const my=++tok,m=L.list[L.i],st=$('stage');
+  $('lR').textContent=m.r;$('msg2').textContent='';st.innerHTML='';
+  let data;
+  try{data=await Promise.all([...m.k].map(getStrokes))}
+  catch(e){$('msg2').textContent='Не удалось загрузить эталон (нужен интернет).';return}
+  if(my!==tok)return;
+  const refs=[],paths=[];
+  const svgs=data.map(ds=>{
+    const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 109 109');s.setAttribute('class','sv dr');
+    const ps=ds.map(d=>{const g=document.createElementNS(NS,'path');g.setAttribute('d',d);g.setAttribute('class','g');s.appendChild(g);return g});
+    st.appendChild(s);refs.push(ps.map(refOf));paths.push(ps);return s;
+  });
+  DS={my,svgs,refs,paths,c:0,n:0,miss:0,errs:0,done:false};
+  svgs.forEach((s,i)=>s.classList.toggle('dim',i!==0));
+  status('Рисуйте по контуру: черта №1');
+  svgs.forEach((s,ci)=>{
+    let pts=null,line=null;
+    const xy=e=>{const r=s.getBoundingClientRect();return [(e.clientX-r.left)/r.width*109,(e.clientY-r.top)/r.height*109]};
+    s.onpointerdown=e=>{
+      if(!DS||DS.my!==my||ci!==DS.c||DS.done)return;
+      e.preventDefault();s.setPointerCapture(e.pointerId);pts=[xy(e)];
+      line=document.createElementNS(NS,'path');line.setAttribute('class','u');s.appendChild(line);
+    };
+    s.onpointermove=e=>{if(!pts)return;pts.push(xy(e));line.setAttribute('d','M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L'))};
+    s.onpointerup=s.onpointercancel=()=>{if(!pts)return;const p=pts;pts=null;judge(s,line,p)};
+  });
+}
+function judge(s,line,pts){
+  const d=DS,u=rsm(pts,RS);
+  if(!u){line.remove();return} /* случайное касание */
+  const refs=d.refs[d.c],n=d.n;
+  if(pdist(u,refs[n])<=TOL){
+    line.remove();
+    const p=document.createElementNS(NS,'path');p.setAttribute('d',d.paths[d.c][n].getAttribute('d'));p.setAttribute('class','p');s.appendChild(p);
+    d.n++;d.miss=0;
+    if(d.n>=refs.length){
+      d.c++;d.n=0;
+      if(d.c>=d.svgs.length){d.done=true;d.svgs.forEach(x=>x.classList.remove('dim'));status('Верно! '+(d.errs?'Неудачных попыток: '+d.errs:'Без ошибок'),'ok');return}
+      d.svgs.forEach((x,i)=>x.classList.toggle('dim',i!==d.c));
+    }
+    status('Хорошо! Теперь черта №'+(d.n+1));
+  }else{
+    line.setAttribute('class','u bad');setTimeout(()=>line.remove(),350);
+    d.errs++;d.miss++;
+    const k=refs.findIndex((r,i)=>i>n&&pdist(u,r)<=TOL);
+    status(k>=0?'Не по порядку: сейчас нужна черта №'+(n+1):'Не получилось — попробуйте ещё раз','no');
+    if(d.miss>=3)hint(s);
+  }
+}
+function hint(s){
+  const d=DS,g=d.paths[d.c][d.n],h=document.createElementNS(NS,'path');
+  h.setAttribute('d',g.getAttribute('d'));h.setAttribute('class','h');s.appendChild(h);
+  const q=g.getPointAtLength(0),t=document.createElementNS(NS,'text');
+  t.setAttribute('x',q.x-5);t.setAttribute('y',q.y-2);t.setAttribute('class','n');t.textContent=d.n+1;s.appendChild(t);
+  d.miss=0;setTimeout(()=>{h.remove();t.remove()},2600);
+}
+$('lDraw').onclick=()=>{drawUI(!drawMode);render()};
+
+$('toLearn').onclick=()=>{show('learn');lGrid();render()};
+$('lBack').onclick=()=>{tok++;drawUI(false);if('speechSynthesis' in window)speechSynthesis.cancel();show('setup')};
+document.querySelectorAll('[name=lS]').forEach(r=>r.onchange=()=>{L.s=r.value;L.i=0;lGrid();render()});
+$('lG').onchange=e=>{L.g=e.target.value;L.i=0;lGrid();render()};
+$('lGrid').onclick=e=>{const b=e.target.closest('.tile');if(b)pick(+b.dataset.i)};
+$('lSay').onclick=say;$('lAgain').onclick=render;
+$('lPrev').onclick=()=>pick((L.i-1+L.list.length)%L.list.length);
+$('lNext').onclick=()=>pick((L.i+1)%L.list.length);
+
+/* ===== Ручной выбор знаков ===== */
+const ROWS={basic:[5,5,5,5,5,5,5,3,5,2,1],dakuten:[5,5,5,5,5],yoon:[3,3,3,3,3,3,3,3,3,3,3]};
+const GN={basic:'Основные',dakuten:'Звонкие',yoon:'Сочетания'};
+let picked=new Set(['basic:0','basic:1','basic:2','basic:3','basic:4']); /* по умолчанию あ-ряд */
+try{const sv=localStorage.getItem('kanaPick');if(sv!==null)picked=new Set(JSON.parse(sv))}catch(e){}
+function syncPick(save){
+  if(save)try{localStorage.setItem('kanaPick',JSON.stringify([...picked]))}catch(e){}
+  document.querySelectorAll('#pickGrid [data-k]').forEach(t=>t.classList.toggle('on',picked.has(t.dataset.k)));
+  $('pickCnt').textContent='Выбрано: '+picked.size+'. Нажмите на знак; кнопка ＋ слева — весь ряд.';
+}
+function renderPick(){
+  const s=$('sH').checked?'h':'k';
+  $('pickGrid').innerHTML=Object.keys(D).map(g=>{
+    const r=D[g].r.split(' '),k=D[g][s].split(' ');let i=0;
+    return '<h2 class="pg">'+GN[g]+'</h2>'+ROWS[g].map(n=>{
+      let h='<div class="prow" style="--n:'+n+'"><button type="button" class="tile rowbtn" title="Весь ряд" data-row="'+g+':'+i+':'+n+'">＋</button>';
+      for(let j=0;j<n;j++,i++)h+='<button type="button" class="tile" data-k="'+g+':'+i+'">'+k[i]+'<small>'+r[i]+'</small></button>';
+      return h+'</div>';
+    }).join('');
+  }).join('');
+  syncPick();
+}
+document.querySelectorAll('[name=sel]').forEach(r=>r.addEventListener('change',()=>{
+  const p=document.querySelector('[name=sel]:checked').value==='pick';
+  $('grpBox').hidden=p;$('pickBox').hidden=!p;if(p)renderPick();
+}));
+['sH','sK'].forEach(id=>$(id).addEventListener('change',()=>{if(!$('pickBox').hidden)renderPick()}));
+$('pickGrid').onclick=e=>{
+  const b=e.target.closest('.tile');if(!b)return;
+  if(b.dataset.row){
+    const [g,i,n]=b.dataset.row.split(':'),ks=[...Array(+n)].map((_,j)=>g+':'+(+i+j)),all=ks.every(k=>picked.has(k));
+    ks.forEach(k=>all?picked.delete(k):picked.add(k));
+  }else{const k=b.dataset.k;picked.has(k)?picked.delete(k):picked.add(k)}
+  syncPick(true);
+};
+$('pAll').onclick=()=>{Object.keys(D).forEach(g=>D[g].r.split(' ').forEach((_,i)=>picked.add(g+':'+i)));syncPick(true)};
+$('pNone').onclick=()=>{picked.clear();syncPick(true)};
+renderPick();
+
+/* ===== Слова из двух слогов: по кана написать ромадзи ===== */
+const W=[["あめ","ame","дождь","雨"],["いえ","ie","дом","家"],["うみ","umi","море","海"],["えき","eki","станция","駅"],["おに","oni","демон","鬼"],["かめ","kame","черепаха","亀"],["くつ","kutsu","обувь","靴"],["さけ","sake","саке","酒"],["すし","sushi","суши","寿司"],["そら","sora","небо","空"],["たこ","tako","осьминог","蛸"],["ねこ","neko","кошка","猫"],["いぬ","inu","собака","犬"],["とり","tori","птица","鳥"],["はな","hana","цветок","花"],["ひと","hito","человек","人"],["ふね","fune","корабль","船"],["へや","heya","комната","部屋"],["ほし","hoshi","звезда","星"],["みち","michi","дорога","道"],["むし","mushi","насекомое","虫"],["もも","momo","персик","桃"],["やま","yama","гора","山"],["ゆき","yuki","снег","雪"],["よる","yoru","ночь","夜"],["さる","saru","обезьяна","猿"],["かさ","kasa","зонт","傘"],["かお","kao","лицо","顔"],["あし","ashi","нога","足"],["いし","ishi","камень","石"],["うた","uta","песня","歌"],["くも","kumo","облако","雲"],["つき","tsuki","луна","月"],["てら","tera","храм","寺"],["なつ","natsu","лето","夏"],["はる","haru","весна","春"],["あき","aki","осень","秋"],["ふゆ","fuyu","зима","冬"],["ちち","chichi","папа","父"],["はは","haha","мама","母"],["あに","ani","старший брат","兄"],["あね","ane","старшая сестра","姉"],["ほん","hon","книга","本"],["みせ","mise","магазин","店"],["まめ","mame","бобы","豆"],["はし","hashi","палочки","箸"],["つめ","tsume","ноготь","爪"],["かわ","kawa","река","川"],["ほね","hone","кость","骨"],["あさ","asa","утро","朝"],["ひる","hiru","день","昼"]];
+let wq=[],wp=[],wc=null,ws='h',wRight=0,wTries=0,wStreak=0,wRev=false,wTok=0;
+const SY=(()=>{const h=D.basic.h.split(' '),r=D.basic.r.split(' ');return c=>r[h.indexOf(c)]})();
+const toK=t=>[...t].map(c=>String.fromCharCode(c.charCodeAt(0)+0x60)).join('');
+const wShown=()=>ws==='k'?toK(wc[0]):wc[0];
+function wStats(){$('wSt1').textContent='Верно: '+wRight+' из '+wTries;$('wSt2').textContent='Серия: '+wStreak}
+function wStart(){
+  const h=D.basic.h.split(' ');
+  wp=W.filter(w=>!$('wMine').checked||[...w[0]].every(c=>picked.has('basic:'+h.indexOf(c))));
+  $('wInfo').textContent='Слов в наборе: '+wp.length+'. Прочитайте слово и введите ромадзи. После верного ответа слово остаётся на экране 5 секунд — Enter пропускает паузу.';
+  wTries=wRight=wStreak=0;wq=[];wTok++;wNext();
+}
+function wNext(){
+  wRev=false;
+  const a=$('wAns');a.value='';a.classList.remove('bad');
+  $('wMsg').textContent='';$('wMsg').className='';$('wExtra').innerHTML='';wStats();
+  if(!wp.length){
+    wc=null;a.readOnly=true;$('wKana').textContent='—';
+    $('wMsg').textContent='Нет слов из выбранных знаков — отметьте больше знаков в настройках.';$('wMsg').className='no';return;
+  }
+  if(!wq.length)wq=shuffle(wp);
+  wc=wq.shift();
+  const m=document.querySelector('[name=wS]:checked').value;
+  ws=m==='m'?(Math.random()<.5?'h':'k'):m;
+  $('wKana').textContent=wShown();
+  a.readOnly=false;$('wOk').textContent='Проверить';$('wShow').hidden=false;a.focus();
+}
+async function wSay(){
+  if(!wc)return;
+  const my=++wTok,w=wc[0];
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  try{
+    for(const c of w){
+      const a=new Audio('audio/'+SY(c)+'.mp3');
+      await new Promise((ok,no)=>{a.onended=ok;a.onerror=no;a.play().catch(no)});
+      if(my!==wTok)return;
+    }
+  }catch(e){
+    if(my===wTok&&'speechSynthesis' in window){const u=new SpeechSynthesisUtterance(w);u.lang='ja-JP';u.rate=.7;speechSynthesis.speak(u)}
+  }
+}
+function wReveal(){ /* хирагана, кандзи и перевод — только после ответа */
+  const p=[];
+  if($('wXh').checked&&ws==='k')p.push([wc[0],'хирагана']);
+  if($('wXk').checked&&wc[3])p.push([wc[3],'кандзи']);
+  if($('wXt').checked)p.push([wc[2],'перевод']);
+  $('wExtra').innerHTML=p.map(x=>'<span>'+x[0]+'<small>'+x[1]+'</small></span>').join('');
+}
+function wOK(v){return v.trim().toLowerCase().replace(/si|ti|tu|hu|nn/g,m=>ALT[m])===wc[1]}
+function wGood(){
+  wTries++;wRight++;wStreak++;wRev=true;$('wAns').readOnly=true;
+  $('wMsg').textContent='Верно! '+wc[1];$('wMsg').className='ok';wReveal();wStats();wSay();
+  const c=wc;setTimeout(()=>{if(wc===c&&wRev&&$('wMsg').className==='ok')wNext()},5000);
+}
+function wBad(){
+  wTries++;wStreak=0;wRev=true;
+  wq.splice(Math.min(wq.length,3+Math.floor(Math.random()*4)),0,wc);
+  $('wAns').readOnly=true;$('wAns').classList.add('bad');
+  $('wMsg').textContent='Ответ: '+wc[1];$('wMsg').className='no';wReveal();
+  $('wOk').textContent='Дальше';$('wShow').hidden=true;wStats();wSay();
+}
+function wSubmit(){
+  if(!wc)return;
+  if(wRev){wNext();return}
+  const v=$('wAns').value;if(!v.trim())return;
+  wOK(v)?wGood():wBad();
+}
+$('toWords').onclick=()=>{show('words');wStart()};
+$('wOk').onclick=wSubmit;
+$('wSay').onclick=wSay;
+$('wShow').onclick=()=>{if(wc&&!wRev)wBad()};
+$('wBack').onclick=()=>{wTok++;if('speechSynthesis' in window)speechSynthesis.cancel();show('setup')};
+document.querySelectorAll('[name=wS]').forEach(r=>r.onchange=wStart);
+$('wMine').onchange=wStart;
+['wXh','wXk','wXt'].forEach(id=>$(id).onchange=()=>{if(wc&&wRev)wReveal()});
+$('wAns').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();wSubmit()}});
+$('wAns').addEventListener('input',e=>{
+  if(!wRev&&wc&&e.target.value.trim()&&wOK(e.target.value))wGood();
+  else e.target.classList.remove('bad');
+});
+
+$('start').onclick=begin;
+$('again').onclick=begin;
+$('toSetup').onclick=()=>show('setup');
+$('ok').onclick=submit;
+$('show').onclick=()=>{if(!revealed)bad(true)};
+$('stop').onclick=finish;
+$('ans').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});
+$('ans').addEventListener('input',e=>{
+  if(!revealed&&e.target.value.trim()&&correct(e.target.value))good();
+  else e.target.classList.remove('bad');
+});
+</script>
+  <script src="/ai-helper.js" data-endpoint="https://raspy-rice-372c.xeoosik.workers.dev/" defer></script>
+<script src="/kolobok-popup.js" defer></script>
+</body>
+</html>
